@@ -33,8 +33,7 @@ pub fn render(
 
     let fill_area = Rectangle::new(Point::zero(), frame_buffer_resource.frame_buffer.size());
 
-    display_resource
-        .display
+    display_resource.display
         .fill_contiguous(&fill_area, frame_buffer_resource.frame_buffer.data.iter().copied())
         .unwrap();
 }

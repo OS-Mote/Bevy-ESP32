@@ -6,3 +6,5 @@ pub mod get_input;
 pub mod process_input;
 pub mod render;
 pub mod main_menu_setup;
+pub mod draw_main_menu;
+pub mod process_main_menu_input;

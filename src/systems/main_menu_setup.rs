@@ -1,13 +1,17 @@
 use bevy::prelude::*;
-use esp_println::{print, println};
-use crate::components::{menu::Menu, menu_item::MenuItem};
+use crate::{components::{
+    menu::Menu,
+    menu_item::MenuItem,
+    menu_items::MenuItems
+}, plugins::main_menu::MainMenuState};
 
 pub fn main_menu_setup(mut commands: Commands) {
     commands.spawn((
-        Menu(String::from("Main Menu")),
-        children![
-            MenuItem(String::from("First")),
-            MenuItem(String::from("Second"))
-        ]
+        (Menu, Name::new("Main Menu")),
+        related!(MenuItems[
+            (MenuItem(MainMenuState::Foo), Name::new("Foo")),
+            (MenuItem(MainMenuState::Bar), Name::new("Bar")),
+            (MenuItem(MainMenuState::Baz), Name::new("Baz"))
+        ])
     ));
 }
