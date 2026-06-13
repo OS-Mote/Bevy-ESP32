@@ -1,5 +1,5 @@
 [package]
-name = "slint-esp32s3-example"
+name = "Bevy ESP32"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.92"
@@ -12,7 +12,7 @@ esp-hal = { version = "1.1.0", features = ["esp32s3", "unstable"] }
 embedded-hal = "1.0.0"
 embedded-hal-bus = "0.3.0"
 esp-alloc = { version = "0.10.0", features = ["nightly"] }
-bevy = { version = "0.18.1", default-features = false }
+bevy = { version = "0.18.1", default-features = false, features = ["bevy_state"]}
 bevy_platform = { version = "0.18.1", default-features = false }
 esp-bootloader-esp-idf = { version = "0.5.0", features = ["esp32s3"]}
 mipidsi = "0.10.0"
