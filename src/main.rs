@@ -23,29 +23,33 @@ use bevy_platform::{
 };
 use esp_backtrace as _;
 use esp_alloc as _;
-use esp_println as _;
 use esp_hal::{
-    timer::{
-        timg::TimerGroup,
-    },
-    main
+    main,
+    peripherals,
+    timer::timg::TimerGroup
 };
+use app_state::AppState;
 use rotary_encoder::setup_rotary_encoder;
 use resources::{
     display::DisplayResource,
     framebuffer::FrameBufferResource
 };
-use app_state::AppState;
 use systems::{
     setup::setup,
     get_input::get_input,
     render::render,
     process_input::process_input
 };
-use messages::rotary_encoder_moved::RotaryEncoderMovedMessage;
 use plugins::main_menu::main_menu_plugin;
-
-use crate::systems::{clear_frame_buffer::clear_frame_buffer, draw_puppies::draw_puppies, update_display::update_display};
+use messages::{
+    rotary_encoder_moved::RotaryEncoderMovedMessage,
+    rotary_encoder_button_pressed::RotaryEncoderButtonPressedMessage
+};
+use systems::{
+    clear_frame_buffer::clear_frame_buffer,
+    draw_puppies::draw_puppies,
+    update_display::update_display
+};
 
 #[main]
 fn main() -> ! {
@@ -56,7 +60,9 @@ fn main() -> ! {
     setup_rotary_encoder(
         peripherals.GPIO4.into(),
         peripherals.GPIO5.into(),
-        TimerGroup::new(peripherals.TIMG0).timer0.into()
+        peripherals.GPIO0.into(),
+        TimerGroup::new(peripherals.TIMG0).timer0.into(),
+        peripherals.IO_MUX
     );
 
     fn elapsed_time() -> core::time::Duration {
@@ -72,7 +78,8 @@ fn main() -> ! {
     app
         .add_plugins((
             MinimalPlugins,
-            StatesPlugin
+            StatesPlugin,
+            main_menu_plugin
         ))
         .insert_resource(
             DisplayResource::new(
@@ -87,6 +94,7 @@ fn main() -> ! {
         )
         .insert_resource(FrameBufferResource::new())
         .add_message::<RotaryEncoderMovedMessage>()
+        .add_message::<RotaryEncoderButtonPressedMessage>()
         .add_systems(Startup,
             setup
         )
@@ -96,14 +104,13 @@ fn main() -> ! {
                     get_input,
                     process_input,
                     clear_frame_buffer,
-                    draw_puppies,
+                    // draw_puppies,
                     update_display
                 )
                     .chain()
             )
         )
         .init_state::<AppState>()
-        .add_plugins(main_menu_plugin)
         .run();
 
     panic!("The event loop should not return");

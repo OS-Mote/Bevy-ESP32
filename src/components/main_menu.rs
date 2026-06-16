@@ -1,4 +1,4 @@
 use bevy::prelude::*;
 
-#[derive(Component)]
-pub struct MainMenu;
+#[derive(Resource)]
+pub struct MainMenu(pub Entity);
