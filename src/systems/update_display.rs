@@ -3,6 +3,7 @@ use embedded_graphics::{
     prelude::*,
     primitives::Rectangle,
 };
+use esp_println::println;
 use crate::DisplayResource;
 use crate::FrameBufferResource;
 

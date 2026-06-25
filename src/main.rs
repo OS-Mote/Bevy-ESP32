@@ -10,8 +10,12 @@ mod components;
 mod systems;
 mod resources;
 mod rotary_encoder;
-mod messages;
 mod plugins;
+mod events;
+mod observers;
+mod sprite_buffer;
+mod lfs_flash;
+mod storage;
 
 use bevy::{
     prelude::*,
@@ -35,27 +39,63 @@ use resources::{
     framebuffer::FrameBufferResource
 };
 use systems::{
-    setup::setup,
     get_input::get_input,
     render::render,
-    process_input::process_input
 };
 use plugins::main_menu::main_menu_plugin;
-use messages::{
-    rotary_encoder_moved::RotaryEncoderMovedMessage,
-    rotary_encoder_button_pressed::RotaryEncoderButtonPressedMessage
-};
 use systems::{
+    setup_app::setup_app,
     clear_frame_buffer::clear_frame_buffer,
-    draw_puppies::draw_puppies,
     update_display::update_display
 };
+use esp_storage::FlashStorage;
+use esp_bootloader_esp_idf::partitions;
+use static_cell::StaticCell;
+use littlefs2::fs::{
+    Allocation,
+    Filesystem
+};
+use storage::LfsFlash;
+use partitions::{
+    PartitionType,
+    DataPartitionSubType
+};
+
+use crate::{plugins::settings_menu::settings_menu_plugin, resources::navigation_stack::NavigationStack};
+
+
+static FLASH: StaticCell<FlashStorage> = StaticCell::new();
+static LFS_PT: StaticCell<partitions::PartitionEntry> = StaticCell::new();
+static LFS_STORAGE: StaticCell<storage::LfsFlash<partitions::FlashRegion<FlashStorage>>> = StaticCell::new();
+static LFS_ALLOC: StaticCell<Allocation<storage::LfsFlash<partitions::FlashRegion<FlashStorage>>>> = StaticCell::new();
+static mut PT_MEM: [u8; partitions::PARTITION_TABLE_MAX_LEN] = [0u8; partitions::PARTITION_TABLE_MAX_LEN];
 
 #[main]
 fn main() -> ! {
     let peripherals = esp_hal::init(esp_hal::Config::default());
 
     esp_alloc::psram_allocator!(peripherals.PSRAM, esp_hal::psram);
+
+    // let flash = FLASH.init(FlashStorage::new(peripherals.FLASH));
+
+    // let partition_table = unsafe {
+    //     partitions::read_partition_table(flash, &mut PT_MEM).unwrap()
+    // };
+
+    // let littlefs = LFS_PT.init(partition_table
+    //     .find_partition(PartitionType::Data(
+    //         DataPartitionSubType::LittleFs,
+    //     ))
+    //     .unwrap()
+    //     .unwrap());
+
+    // let littlefs_partition = littlefs.as_embedded_storage(flash);
+
+    // let storage = LFS_STORAGE.init(LfsFlash(littlefs_partition));
+    // let alloc = LFS_ALLOC.init(Filesystem::allocate());
+    // let filesystem = Filesystem::mount_or_else(alloc, storage, |_, s, _| {
+    //     Filesystem::format(s)
+    // }).unwrap();
 
     setup_rotary_encoder(
         peripherals.GPIO4.into(),
@@ -79,7 +119,8 @@ fn main() -> ! {
         .add_plugins((
             MinimalPlugins,
             StatesPlugin,
-            main_menu_plugin
+            main_menu_plugin,
+            settings_menu_plugin
         ))
         .insert_resource(
             DisplayResource::new(
@@ -93,23 +134,11 @@ fn main() -> ! {
             )
         )
         .insert_resource(FrameBufferResource::new())
-        .add_message::<RotaryEncoderMovedMessage>()
-        .add_message::<RotaryEncoderButtonPressedMessage>()
-        .add_systems(Startup,
-            setup
-        )
-        .add_systems(Update,
-            ( 
-                (
-                    get_input,
-                    process_input,
-                    clear_frame_buffer,
-                    // draw_puppies,
-                    update_display
-                )
-                    .chain()
-            )
-        )
+        .insert_resource(NavigationStack::new())
+        .add_systems(Startup, setup_app)
+        .add_systems(Update, clear_frame_buffer)
+        .add_systems(Update, get_input.after(clear_frame_buffer))
+        .add_systems(Update, update_display.after(get_input))
         .init_state::<AppState>()
         .run();
 

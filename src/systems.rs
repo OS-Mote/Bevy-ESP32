@@ -1,11 +1,12 @@
-pub mod setup;
+pub mod setup_app;
 pub mod clear_frame_buffer;
 pub mod update_display;
 pub mod draw_puppies;
 pub mod get_input;
-pub mod process_input;
 pub mod render;
 pub mod setup_main_menu;
+pub mod setup_settings_menu;
 pub mod cleanup_main_menu;
+pub mod cleanup_settings_menu;
 pub mod draw_menu;
 pub mod process_menu_input;

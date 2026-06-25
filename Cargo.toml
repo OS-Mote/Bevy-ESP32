@@ -3,6 +3,7 @@ name = "Bevy-ESP32"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.92"
+build = "build.rs"
 
 [dependencies]
 critical-section = "1"
@@ -14,7 +15,7 @@ embedded-hal-bus = "0.3.0"
 esp-alloc = { version = "0.10.0", features = ["nightly"] }
 bevy = { version = "0.18.1", default-features = false, features = ["bevy_state"]}
 bevy_platform = { version = "0.18.1", default-features = false }
-esp-bootloader-esp-idf = { version = "0.5.0", features = ["esp32s3"]}
+esp-bootloader-esp-idf = { version = "0.5.0", features = ["esp32s3"] }
 mipidsi = "0.10.0"
 embedded-graphics = "0.8.2"
 embedded-graphics-core = "0.4.1"
@@ -23,3 +24,6 @@ tinytga = "0.5.0"
 rotary-encoder-embedded = "0.5.0"
 enum-iterator = "2.3.0"
 embedded-layout = "0.4.2"
+littlefs2 = "0.8.0"
+embedded-storage = "0.3.1"
+esp-storage = { version = "0.9.0", features = ["esp32s3"] }

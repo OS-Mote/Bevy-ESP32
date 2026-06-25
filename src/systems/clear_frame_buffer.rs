@@ -3,6 +3,7 @@ use embedded_graphics::{
     prelude::*,
     pixelcolor::Rgb565
 };
+use esp_println::println;
 use crate::FrameBufferResource;
 
 pub fn clear_frame_buffer(

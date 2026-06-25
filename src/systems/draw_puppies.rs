@@ -18,7 +18,7 @@ pub fn draw_puppies(
     mut frame_buffer_resource: ResMut<FrameBufferResource>,
     transforms: Query<&Transform>
 ) {
-    let puppies_tga: Tga<Rgb565> = Tga::from_slice(PUPPIES_TGA_DATA)
+    let puppies_tga: Tga<Rgb565> = Tga::from_slice(include_bytes!("../../resources/puppies.tga"))
         .unwrap();
 
     for transform in transforms.iter() {

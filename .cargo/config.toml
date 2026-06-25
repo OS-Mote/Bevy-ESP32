@@ -1,11 +1,15 @@
 [target.xtensa-esp32s3-none-elf]
 
-runner = "espflash flash --monitor"
+runner = "espflash flash --monitor --partition-table=partitions.csv"
 
 rustflags = [
   "-C", "link-arg=-Tlinkall.x",
   "-C", "link-arg=-nostartfiles"
 ]
+
+[env]
+CFLAGS = "-mlongcalls"
+CROSS_COMPILE = "xtensa-esp32-elf"
 
 [unstable]
 build-std = ["core", "alloc"]
